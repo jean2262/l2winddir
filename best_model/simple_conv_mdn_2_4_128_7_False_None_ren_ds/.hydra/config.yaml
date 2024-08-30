@@ -1,0 +1,41 @@
+trainer:
+  _target_: lightning.pytorch.trainer.trainer.Trainer
+  max_epochs: 100
+  callbacks:
+  - _target_: lightning.pytorch.callbacks.model_checkpoint.ModelCheckpoint
+    monitor: val_loss
+    save_top_k: 1
+    mode: min
+    filename: best-checkpoint
+  - _target_: lightning.pytorch.callbacks.early_stopping.EarlyStopping
+    monitor: val_loss
+    patience: 15
+    mode: min
+  accelerator: gpu
+  devices:
+  - 7
+  precision: 32
+  logger:
+    _target_: lightning.pytorch.loggers.tensorboard.TensorBoardLogger
+    save_dir: ${hydra:runtime.output_dir}
+    name: wind_direction_model
+    version: ${model.inc}_${model.down}_${model.hid}_${model.depth}_${model.model_mdn}_${model.weight_decay}_ren_ds
+  gradient_clip_val: 0.05
+  gradient_clip_algorithm: value
+  log_every_n_steps: 2
+data_module:
+  _target_: data_module.WindDirectionDataModule
+  train_data_paths: /raid/localscratch/jrmiadan/analyse/cnn_project/pythonProject1/dataset_180/train_dataset_norm.nc
+  valid_data_paths: /raid/localscratch/jrmiadan/analyse/cnn_project/pythonProject1/dataset_180/validation_dataset_norm.nc
+  test_data_paths: /raid/localscratch/jrmiadan/analyse/cnn_project/pythonProject1/dataset_180/test_dataset_norm.nc
+  inc: 2
+model:
+  _target_: simple_conv.MyModel
+  inc: ${data_module.inc}
+  hid: 128
+  depth: 7
+  down: 4
+  model_mdn: false
+  num_gaussians: 2
+  weight_decay: None
+  lr: 0.001

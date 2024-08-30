@@ -1,0 +1,11 @@
+- trainer.max_epochs=100
+- data_module.inc=2
+- model.inc=$\{data_module.inc\}
+- model.down=4
+- model.hid=128
+- model.depth=7
+- model.model_mdn=False
+- model.num_gaussians=2
+- model.weight_decay=None
+- model.lr=0.001
+- trainer.logger.version=$\{model.inc\}_$\{model.down\}_$\{model.hid\}_$\{model.depth\}_$\{model.model_mdn\}_$\{model.weight_decay\}_ren_ds
