@@ -12,3 +12,6 @@ best_model_old_arch/
 multirun/
 *.nc
 xsarml.ipynb
+build/
+dist/
+l2winddir.egg-info/

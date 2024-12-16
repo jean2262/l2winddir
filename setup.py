@@ -6,6 +6,8 @@ setup(
     description='A package for l2 wind direction',
     author='jean2262',
     author_email='jrenaud495@gmail.com',
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     packages=find_packages(),
     install_requires=[
         'hydra-core',
