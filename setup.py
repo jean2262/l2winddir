@@ -17,7 +17,8 @@ setup(
         'numpy',
         'lightning',
         'omegaconf',
-        'tqdm'
+        'tqdm',
+        'einops'
     ],
     python_requires='>=3.11',
     classifiers=[

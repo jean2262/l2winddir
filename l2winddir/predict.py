@@ -1,5 +1,4 @@
 import argparse
-import sys
 from pathlib import Path
 
 import hydra
@@ -8,12 +7,10 @@ import pandas as pd
 import torch
 import xarray as xr
 from omegaconf import OmegaConf
+import l2winddir.simple_conv
 import torch.multiprocessing as mp
 
 mp.set_start_method("spawn", force=True)
-sys.path.append(
-    "/raid/localscratch/jrmiadan/analyse/cnn_project/pythonProject1/simple_conv"
-)
 
 def load_from_cfg(
     cfg_path,

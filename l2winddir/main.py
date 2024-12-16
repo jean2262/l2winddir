@@ -6,7 +6,7 @@ from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 import lightning as L
 from omegaconf import OmegaConf
-from data_module import WindDirectionDataModule
+from l2winddir.data_module import WindDirectionDataModule
 import simple_conv
 
 
@@ -51,7 +51,7 @@ MyModelMDNConfig = builds(
     weight_decay=None,
     lr=1e-3,
     drop=False,
-    data_augmentation=False,
+    # data_augmentation=False,
 )
 
 # Define paths to data files (Renaud)
@@ -136,8 +136,8 @@ overrides = [
     "model.weight_decay=1e-4",
     "model.lr=1e-3",
     "model.drop=True",
-    "model.data_augmentation=True",
-    "trainer.logger.version=${model.inc}_${model.down}_${model.hid}_${model.depth}_${model.model_mdn}_${model.weight_decay}_${model.drop}_${model.data_augmentation}_ren_ds"
+    # "model.data_augmentation=True",
+    "trainer.logger.version=${model.inc}_${model.down}_${model.hid}_${model.depth}_${model.model_mdn}_${model.weight_decay}_${model.drop}_ren_ds"
 ]
 
 # Launch the Hydra-Zen jobs with the specified configuration and overrides
