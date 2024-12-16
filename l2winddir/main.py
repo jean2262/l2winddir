@@ -51,6 +51,7 @@ MyModelMDNConfig = builds(
     weight_decay=None,
     lr=1e-3,
     drop=False,
+    data_augmentation=False,
 )
 
 # Define paths to data files (Renaud)
@@ -128,14 +129,15 @@ overrides = [
     "data_module.inc=2",
     "model.inc=${data_module.inc}",
     "model.down=4",
-    "model.hid=256",
+    "model.hid=128",
     "model.depth=7",
     "model.model_mdn=True",
     "model.num_gaussians=2",
     "model.weight_decay=1e-4",
     "model.lr=1e-3",
     "model.drop=True",
-    "trainer.logger.version=${model.inc}_${model.down}_${model.hid}_${model.depth}_${model.model_mdn}_${model.weight_decay}_${model.drop}_ren_ds"
+    "model.data_augmentation=True",
+    "trainer.logger.version=${model.inc}_${model.down}_${model.hid}_${model.depth}_${model.model_mdn}_${model.weight_decay}_${model.drop}_${model.data_augmentation}_ren_ds"
 ]
 
 # Launch the Hydra-Zen jobs with the specified configuration and overrides

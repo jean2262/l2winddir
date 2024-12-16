@@ -1,0 +1,14 @@
+# Ignore ipynb file
+.idea/
+.ipynb_checkpoints/
+ipynb_checkpoints
+
+# Ignore pycache
+__pycache__/
+__pycache__
+
+# Ignore files
+best_model_old_arch/
+multirun/
+*.nc
+xsarml.ipynb

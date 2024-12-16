@@ -6,6 +6,7 @@ import lightning as L
 from loss import CustomLoss
 from einops.layers.torch import Reduce
 import math
+import numpy as np
 
 # Set higher precision for matrix multiplication
 torch.set_float32_matmul_precision('high')
@@ -167,6 +168,7 @@ class MyModel(L.LightningModule):
             criterion=CustomLoss(),
             weight_decay=None,
             lr=1e-3,
+            # data_augmentation=False,
     ):
         super().__init__()
         self.criterion = criterion
@@ -175,6 +177,7 @@ class MyModel(L.LightningModule):
         self.train_mean = None
         self.train_std = None
         self.model_mdn = model_mdn
+        # self.data_augmentation = data_augmentation
         self.outc = 3 if model_mdn else 1
         self.mod = simple_conv(inc=inc, outc=self.outc, hid=hid, depth=depth, down=down, act=nn.ReLU(), drop=drop)
         if model_mdn:
@@ -190,6 +193,7 @@ class MyModel(L.LightningModule):
         Returns:
             tuple: Predicted values, uncertainty, and MDN outputs (pi, sigma, mu) if model_mdn=True.
         """
+            
         if self.model_mdn:
             pi, sigma, mu = self.mdn(x)
             pred = mu.gather(-1, pi.argmax(dim=-1, keepdim=True))
@@ -236,6 +240,8 @@ class MyModel(L.LightningModule):
             torch.Tensor: The computed loss.
         """
         x, y = batch
+        # if self.data_augmentation:
+        #     x = torch.rot90(x, np.random.choice([0, 2]), [2,3])
         if self.model_mdn:
             pred, uncertainty = self(x)
             pi, sigma, mu = self.mdn(x)

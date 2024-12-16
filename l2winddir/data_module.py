@@ -52,51 +52,75 @@ class WindDirectionDataModule(L.LightningDataModule):
         Args:
             stage (str, optional): The stage of processing (e.g., 'fit', 'test', 'predict').
         """
-        if self.train_data_paths:
-            self.train_dataset = self.load_dataset(self.train_data_paths)
-        if self.valid_data_paths:
-            self.valid_dataset = self.load_dataset(self.valid_data_paths)
+
         if self.test_data_paths:
             self.test_dataset = self.load_dataset(self.test_data_paths)
 
         if stage == 'fit' or stage is None:
-            # Compute the mean and standard deviation of the training data for normalization
-            if self.inc == 1:
-                self.train_mean = self.train_dataset.tensors[0].mean()
-                self.train_std = self.train_dataset.tensors[0].std()
-            elif self.inc == 2:
-                self.train_mean = self.train_dataset.tensors[0].mean(dim=(0, 2, 3))
-                self.train_std = self.train_dataset.tensors[0].std(dim=(0, 2, 3))
+            if self.train_data_paths:
+                self.train_dataset = self.load_dataset(self.train_data_paths)
+            if self.valid_data_paths:
+                self.valid_dataset = self.load_dataset(self.valid_data_paths)
+    
+        if self.inc == 1:
+            self.train_mean = (
+                self.train_dataset.tensors[0].mean() if self.train_mean is None else self.train_mean
+            )
+            self.train_std = (
+                self.train_dataset.tensors[0].std() if self.train_std is None else self.train_std
+            )
 
+        elif self.inc == 2:
+            self.train_mean = (
+                self.train_dataset.tensors[0].mean(dim=(0, 2, 3))
+                if self.train_mean is None
+                else self.train_mean
+            )
+            self.train_std = (
+                self.train_dataset.tensors[0].std(dim=(0, 2, 3))
+                if self.train_std is None
+                else self.train_std
+            )
+                
+        if stage == 'fit' or stage is None:
             # Normalize training and validation datasets
             self.train_dataset = self.normalize_dataset(self.train_dataset)
             self.valid_dataset = self.normalize_dataset(self.valid_dataset)
 
-        if stage == 'test' or stage == 'predict':
+        elif stage == 'test' or stage == 'predict':
             # Normalize test dataset
             self.test_dataset = self.normalize_dataset(self.test_dataset)
 
     def load_dataset(self, path):
         """
-        Loads the dataset from the given path and prepares it as a TensorDataset.
+        Loads a dataset from a given path, either a string or an xarray Dataset object.
 
-        Args:
-            path (str): Path to the data file.
+        Parameters
+        ----------
+        path : str or xr.Dataset
+            Path to the dataset file or an xarray Dataset object.
 
-        Returns:
-            TensorDataset: The dataset loaded from the file.
+        Returns
+        -------
+        dataset : TensorDataset
+            A PyTorch TensorDataset containing the input data and labels.
         """
-        ds = xr.open_dataset(path)
+        if isinstance(path, str):
+            ds = xr.open_dataset(path)
+        elif isinstance(path, xr.Dataset):
+            ds = path
         if self.inc == 1:
             # Single polarization (VV or VH)
             X = ds.sel(pol=self.pol).sigma0_detrend.values
-            y = ds.sel(pol=self.pol).ref_angles.values if 'ref_angles' in ds else np.zeros(len(X))
             X = X[:, None, :, :]  # Add channel dimension
+            y = ds.sel(pol=self.pol).ref_angles.values if 'ref_angles' in ds else np.zeros(len(X))
+
         elif self.inc == 2:
             # Dual polarization (VV, VH)
             X = ds.sigma0_detrend.values
-            y = ds.ref_angles.values if 'ref_angles' in ds else np.zeros(len(X[0]))
-            X = np.transpose(X, (1, 0, 2, 3))  # Transpose to (batch, channels, height, width)
+            X = np.transpose(X, (0, 1, 2, 3))  # Transpose to (batch, channels, height, width)
+            y = ds.ref_angles.values if 'ref_angles' in ds else np.zeros(X.shape[0])
+
 
         # Convert to PyTorch tensors
         X_tensor = torch.tensor(X, dtype=torch.float32)
