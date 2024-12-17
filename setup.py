@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='l2winddir',
-    version='0.0.2',
+    version='0.0.3',
     description='A package for l2 wind direction',
     author='jean2262',
     author_email='jrenaud495@gmail.com',
