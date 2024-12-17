@@ -7,7 +7,12 @@ import pandas as pd
 import torch
 import xarray as xr
 from omegaconf import OmegaConf
-import l2winddir.simple_conv
+import sys
+# Add the current directory to the Python path
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+
 import torch.multiprocessing as mp
 
 mp.set_start_method("spawn", force=True)

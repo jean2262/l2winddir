@@ -5,6 +5,4 @@ __email__ = "jrenaud495@gmail.com"
 
 from .data_module import *
 from .loss import *
-# from .main import *
 from .predict import *
-from .simple_conv import *
