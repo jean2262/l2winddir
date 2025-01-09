@@ -1,17 +1,9 @@
-[build-system]
-requires = ["setuptools>=64.0", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools_scm]
-write_to = "l2winddir/_version.py"
-fallback_version = "999"
-
 [project]
 name = "l2winddir"
-version = "0.1.0"  # Optional, as setuptools_scm can manage this
 description = "A package for predicting wind direction"
 authors = [{ name = "jean2262", email = "jean-renaud.miadana@ocean-scope.com" }]
 license = { text = "MIT" }
+readme = "README.md"
 dependencies = [
     "grdtiler",
     "hydra-zen",
@@ -24,5 +16,16 @@ dependencies = [
     "einops",
     "opencv",
 ]
-readme = "README.md"
+dynamic = ["version"]
 scripts = { l2winddir_predict = "l2winddir.safe_predict:main" }
+
+[tool.setuptools]
+packages = ["l2winddir"]
+
+[tool.setuptools_scm]
+write_to = "l2winddir/_version.py"
+fallback_version = "999"
+
+[build-system]
+requires = ["setuptools>=64.0", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
