@@ -5,5 +5,23 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools_scm]
 fallback_version = "999"
 
-[project.scripts]
-l2winddir_predict = "l2winddir.safe_predict:main"
+[project]
+name = "l2winddir"
+version = "0.1.0"  # Optional, as setuptools_scm can manage this
+description = "A package for predicting wind direction"
+authors = [{ name = "jean2262", email = "jean-renaud.miadana@ocean-scope.com" }]
+license = { text = "MIT" }
+dependencies = [
+    "grdtiler",
+    "hydra-zen",
+    "omegaconf",
+    "pytorch",
+    "pytorch-cuda==11.8",
+    "torchaudio",
+    "torchvision",
+    "lightning",
+    "einops",
+    "opencv",
+]
+readme = "README.md"
+scripts = { l2winddir_predict = "l2winddir.safe_predict:main" }

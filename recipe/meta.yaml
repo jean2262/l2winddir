@@ -3,8 +3,9 @@ package:
   version: {{ environ.get('GIT_DESCRIBE_TAG', 0)}}
 
 source:
+  # path: ../.conda
   git_url: https://github.com/jean2262/l2winddir.git
-  git_rev: HEAD  
+  git_rev: HEAD
 
 build:
   number: 1
@@ -13,31 +14,39 @@ build:
 requirements:
   build:
     - python >=3.10,<3.12
-    - setuptools
-    - setuptools_scm
+    - setuptools >=64.0
+    - setuptools_scm >=6.0
     - pip
   host:
     - python >=3.10,<3.12
     - grdtiler
     - hydra-zen
     - omegaconf
-    - pytorch
-    - pytorch-cuda==11.8
+    - pytorch 
+    - pytorch-cuda=11.8
     - torchaudio
     - torchvision
     - lightning
     - einops
+    - opencv
   run:
     - python >=3.10,<3.12
     - grdtiler
     - hydra-zen
     - omegaconf
-    - pytorch
-    - pytorch-cuda==11.8
+    - pytorch 
+    - pytorch-cuda=11.8
     - torchaudio
     - torchvision
     - lightning
     - einops
+    - opencv
+
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - oceanscope
 
 about:
   home: https://github.com/jean2262/l2winddir.git
@@ -46,4 +55,4 @@ about:
 
 extra:
   recipe-maintainers:
-    - jean2262 
+    - jean2262
