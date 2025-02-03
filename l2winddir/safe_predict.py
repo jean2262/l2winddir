@@ -49,6 +49,7 @@ def pred(input, config='./config.yaml', output="."):
             tile_size=conf["tile_size"],
             resolution=conf["resolution"],
             noverlap=conf["noverlap"],
+            config_file=conf["grdtiler_config"],
         )
         logging.info(f"Tiles generated: {len(tiles.tile.values)} tiles")
 
