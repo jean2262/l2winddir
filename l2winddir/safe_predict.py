@@ -39,13 +39,13 @@ def pred(input, config='./config.yaml', output="."):
         conf = OmegaConf.load(config)
         logging.info(f"Configuration loaded successfully from {config}")
 
-        # Process input
-        safe_path = process_input(input)
-        logging.info(f"Input processed successfully: {safe_path}")
+        # # Process input
+        # safe_path = process_input(input)
+        # logging.info(f"Input processed successfully: {safe_path}")
 
         # Tile generation
         _, tiles = grdtiler.tiling_prod(
-            path=safe_path,
+            path=input,
             tile_size=conf["tile_size"],
             resolution=conf["resolution"],
             noverlap=conf["noverlap"],
@@ -80,7 +80,8 @@ def pred(input, config='./config.yaml', output="."):
         # Add l2winddir_version to the dataset
         ds.attrs["l2winddir_version"] = __version__
         # Uncomment the following line to save the dataset
-        save_ds(ds, filename=input, output=output)
+        filename = Path(input).name
+        save_ds(ds, filename=filename, output=output)
 
         return ds
 
