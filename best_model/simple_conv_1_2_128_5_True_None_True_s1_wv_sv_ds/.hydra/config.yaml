@@ -1,0 +1,41 @@
+trainer:
+  _target_: lightning.pytorch.trainer.trainer.Trainer
+  max_epochs: 100
+  callbacks:
+  - _target_: lightning.pytorch.callbacks.model_checkpoint.ModelCheckpoint
+    monitor: val_loss
+    save_top_k: 1
+    mode: min
+    filename: best-checkpoint
+  - _target_: lightning.pytorch.callbacks.early_stopping.EarlyStopping
+    monitor: val_loss
+    patience: 15
+    mode: min
+  accelerator: gpu
+  devices: 1
+  precision: 32
+  logger:
+    _target_: lightning.pytorch.loggers.tensorboard.TensorBoardLogger
+    save_dir: ${hydra:runtime.output_dir}
+    name: wind_direction_model
+    version: ${model.inc}_${model.down}_${model.hid}_${model.depth}_${model.model_mdn}_${model.weight_decay}_${model.drop}_ren_ds
+  gradient_clip_val: 0.05
+  gradient_clip_algorithm: value
+  log_every_n_steps: 2
+data_module:
+  _target_: l2winddir.data_module.WindDirectionDataModule
+  train_data_paths: /home/datawork-cersat-public/project/mpc-sentinel1/analysis/s1_data_analysis/project_jrmiadan/l2winddir/l2winddir_code/l2winddir/wv_datasets/train_dataset_hy2b_s1_wv.nc
+  valid_data_paths: /home/datawork-cersat-public/project/mpc-sentinel1/analysis/s1_data_analysis/project_jrmiadan/l2winddir/l2winddir_code/l2winddir/wv_datasets/validation_dataset_hy2b_s1_wv.nc
+  test_data_paths: /home/datawork-cersat-public/project/mpc-sentinel1/analysis/s1_data_analysis/project_jrmiadan/l2winddir/l2winddir_code/l2winddir/wv_datasets/test_dataset_hy2b_s1_wv.nc
+  inc: 1
+model:
+  _target_: simple_conv.MyModel
+  inc: ${data_module.inc}
+  hid: 128
+  depth: 5
+  down: 2
+  model_mdn: true
+  num_gaussians: 2
+  weight_decay: None
+  lr: 0.001
+  drop: true

@@ -44,7 +44,7 @@ MyModelMDNConfig = builds(
     simple_conv.MyModel,
     inc=1,
     hid=128,
-    depth=7,
+    depth=5,
     down=4,
     model_mdn=True,
     num_gaussians=2,
@@ -55,10 +55,10 @@ MyModelMDNConfig = builds(
 )
 
 # Define paths to data files (Renaud)
-base_path = '/raid/localscratch/jrmiadan/analyse/cnn_project/pythonProject1'
-train_data_paths = f'{base_path}/dataset_180/train_dataset_norm.nc'
-valid_data_paths = f'{base_path}/dataset_180/validation_dataset_norm.nc'
-test_data_paths = f'{base_path}/dataset_180/test_dataset_norm.nc'
+base_path = '/home/datawork-cersat-public/project/mpc-sentinel1/analysis/s1_data_analysis/project_jrmiadan/l2winddir/l2winddir_code/l2winddir/wv_datasets'
+train_data_paths = f'{base_path}/train_dataset_hy2b_s1_wv.nc'
+valid_data_paths = f'{base_path}/validation_dataset_hy2b_s1_wv.nc'
+test_data_paths = f'{base_path}/test_dataset_hy2b_s1_wv.nc'
 
 # Define paths to data files (Robin)
 # train_data_paths = f'{base_path}/dataset/train_dataset_robin.nc'
@@ -108,7 +108,7 @@ TrainerConfig = builds(
         early_stopping_callback
     ],
     accelerator='gpu',
-    devices=[7],
+    devices=1,
     precision=32,
     logger=logger,
     gradient_clip_val=0.05,
@@ -126,14 +126,14 @@ config = make_config(
 # Define overrides for the configuration
 overrides = [
     "trainer.max_epochs=100",
-    "data_module.inc=2",
+    "data_module.inc=1",
     "model.inc=${data_module.inc}",
-    "model.down=4",
+    "model.down=2, 4",
     "model.hid=128",
-    "model.depth=7",
+    "model.depth=5, 7",
     "model.model_mdn=True",
     "model.num_gaussians=2",
-    "model.weight_decay=1e-4",
+    "model.weight_decay=None",
     "model.lr=1e-3",
     "model.drop=True",
     # "model.data_augmentation=True",

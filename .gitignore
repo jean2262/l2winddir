@@ -10,9 +10,15 @@ __pycache__
 # Ignore files
 best_model_old_arch/
 multirun/
+outputs/
 *.nc
 xsarml.ipynb
 build/
 dist/
 l2winddir.egg-info/
 l2winddir/samp.ipynb
+wv_datasets
+Analyse_simple_conv_on_coloc.ipynb
+check_path.py
+retraining.ipynb
+predicted_analyse.ipynb

@@ -116,7 +116,7 @@ def load_model(xp_dir, cfg_path, hydra_cfg_path):
     return model, ckpt
 
 
-def load_data_module(data_path, cfg_path, hydra_cfg_path, checkpoint):
+def load_data_module(data_path, cfg_path, hydra_cfg_path, checkpoint, pol="VV"):
     """
     Load a LightningDataModule and set it up for prediction.
 
@@ -138,6 +138,11 @@ def load_data_module(data_path, cfg_path, hydra_cfg_path, checkpoint):
 
     """
     if isinstance(data_path, str):
+        try:
+            ds = xr.open_dataset(data_path)
+        except Exception as e:
+            logger.error(f"Failed to open dataset {data_path}: {e}")
+
         data_module = load_from_cfg(
             cfg_path=str(cfg_path),
             key="data_module",
@@ -145,20 +150,31 @@ def load_data_module(data_path, cfg_path, hydra_cfg_path, checkpoint):
             overrides=dict(data_module=dict(test_data_paths=data_path)),
         )
     elif isinstance(data_path, xr.Dataset):
+        ds = data_path
         data_module = load_from_cfg(
             cfg_path=str(cfg_path),
             key="data_module",
             cfg_hydra_path=str(hydra_cfg_path),
         )
         data_module.test_data_paths = data_path
-    data_module.train_mean = checkpoint["train_mean"]
-    data_module.train_std = checkpoint["train_std"]
+
+    data_module.pol = pol
+
+        
+    if len(ds.pol.values) == 1 and checkpoint["train_mean"].dim() == 1:
+        data_module.train_mean = torch.tensor([checkpoint["train_mean"][0], checkpoint["train_mean"][0]])
+        data_module.train_std = torch.tensor([checkpoint["train_std"][0], checkpoint["train_std"][0]])
+    else:
+        data_module.train_mean = checkpoint["train_mean"]
+        data_module.train_std = checkpoint["train_std"]
     data_module.setup(stage="predict")
+
     dataloader = data_module.test_dataloader()
+
     return dataloader
 
 
-def predict(model_path, data_path, model=None, checkpoint=None):
+def predict(model_path, data_path, model=None, checkpoint=None, pol="VV"):
     """
     Generate predictions and uncertainties from a trained model using given data.
 
@@ -185,7 +201,7 @@ def predict(model_path, data_path, model=None, checkpoint=None):
     hydra_cfg_path = xp_dir / ".hydra/hydra.yaml"
     if model is None or checkpoint is None:
         model, checkpoint = load_model(xp_dir, cfg_path, hydra_cfg_path)
-    dataloader = load_data_module(data_path, cfg_path, hydra_cfg_path, checkpoint)
+    dataloader = load_data_module(data_path, cfg_path, hydra_cfg_path, checkpoint, pol)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     model = model.to(device)
@@ -215,7 +231,7 @@ def predict(model_path, data_path, model=None, checkpoint=None):
     return pred_deg, pred_uncert
 
 
-def make_prediction(model_path, data_path, eval=False, save_path="."):
+def make_prediction(model_path, data_path, eval=False, save_path=".", pol="VV"):
     """
     Make predictions and uncertainties from a trained model using given data.
 
@@ -248,15 +264,16 @@ def make_prediction(model_path, data_path, eval=False, save_path="."):
         checkpoint=checkpoint,
         model_path=model_path,
         data_path=data_path,
+        pol=pol
     )
     if eval:
         df = pd.DataFrame(
-            {"predicted winddir": y_pred, "predicted uncert": uncertainty}
+            {"predicted winddir (deg/SARantenna)": y_pred, "predicted uncert": uncertainty}
         )
         return df
     else:
         if isinstance(data_path, str):
-            ds = xr.open_dataset(data_path)
+            ds = xr.open_dataset(data_path).load()
         elif isinstance(data_path, xr.Dataset):
             ds = data_path
         headin_angle = ds["ground_heading"][0][0][0].values
@@ -294,8 +311,22 @@ if __name__ == "__main__":
         default=False,
         help="Evaluate the model",
     )
+    parser.add_argument(
+        "--pol",
+        type=str,
+        default="VV",
+        help="Polarisation",
+    )
+    parser.add_argument(
+        "--save_path",
+        type=str,
+        default=".",
+        help="Path to save the resulting dataset",
+    )
     args = parser.parse_args()
     model_path = args.model_path
     data_path = args.data_path
     eval = args.eval
-    make_prediction(model_path=model_path, data_path=data_path, eval=eval)
+    pol = args.pol
+    save_path = args.save_path
+    make_prediction(model_path=model_path, data_path=data_path, eval=eval, pol=pol, save_path=save_path)

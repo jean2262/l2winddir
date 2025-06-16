@@ -31,6 +31,7 @@ class WindDirectionDataModule(L.LightningDataModule):
         self.test_data_paths = test_data_paths
         self.inc = inc
         self.batch_size = batch_size
+        self.num_workers = 0
         self.pol = pol
         self.train_mean = None
         self.train_std = None
@@ -106,7 +107,7 @@ class WindDirectionDataModule(L.LightningDataModule):
             A PyTorch TensorDataset containing the input data and labels.
         """
         if isinstance(path, str):
-            ds = xr.open_dataset(path)
+            ds = xr.open_dataset(path) 
         elif isinstance(path, xr.Dataset):
             ds = path
         if self.inc == 1:
@@ -153,7 +154,7 @@ class WindDirectionDataModule(L.LightningDataModule):
         Returns:
             DataLoader: DataLoader for the training dataset.
         """
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, num_workers=4, shuffle=True)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, num_workers=self.num_workers, shuffle=True)
 
     def val_dataloader(self):
         """
@@ -162,7 +163,7 @@ class WindDirectionDataModule(L.LightningDataModule):
         Returns:
             DataLoader: DataLoader for the validation dataset.
         """
-        return DataLoader(self.valid_dataset, batch_size=self.batch_size, num_workers=4, shuffle=False)
+        return DataLoader(self.valid_dataset, batch_size=self.batch_size, num_workers=self.num_workers, shuffle=False)
 
     def test_dataloader(self):
         """
@@ -171,4 +172,4 @@ class WindDirectionDataModule(L.LightningDataModule):
         Returns:
             DataLoader: DataLoader for the test dataset.
         """
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, num_workers=4, shuffle=False)
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, num_workers=self.num_workers, shuffle=False)
